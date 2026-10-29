@@ -1,0 +1,8 @@
+user sensor_01
+topic write agriculture/sensor_01/mesures
+
+user sensor_02
+topic write agriculture/sensor_02/mesures
+
+user supervisor
+topic read agriculture/+/mesures

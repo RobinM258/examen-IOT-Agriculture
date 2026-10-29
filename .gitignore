@@ -1,0 +1,33 @@
+# Clés privées et certificats générés localement
+certs/*
+!certs/README.md
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Secrets et variables d'environnement
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Logs
+*.log
+
+# Editeurs
+.vscode/
+.idea/
+
+# Certificats et clés d'exécution : ne jamais publier
+broker/runtime/certs/
+sensor/runtime/certs/
+supervisor/runtime/certs/
+
+# Fichiers privés générés localement
+certs/

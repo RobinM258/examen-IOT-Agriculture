@@ -1,0 +1,95 @@
+services:
+  broker:
+    image: eclipse-mosquitto:2
+    container_name: agriculture-broker
+    restart: unless-stopped
+    command: ["mosquitto", "-c", "/mosquitto/config/mosquitto.conf", "-v"]
+    volumes:
+      - ./broker/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./broker/runtime/acl:/mosquitto/runtime/acl:ro
+      - ./broker/runtime/certs:/mosquitto/runtime/certs:ro
+    networks:
+      - mqtt_clients
+      - mqtt_backend
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  sensor_01:
+    build:
+      context: ./sensor
+    container_name: agriculture-sensor-01
+    group_add:
+      - "10001"
+    restart: unless-stopped
+    environment:
+      SENSOR_ID: sensor_01
+      BROKER_HOST: broker
+      BROKER_PORT: "8883"
+      INTERVAL: "10"
+    volumes:
+      - ./sensor/runtime/certs:/app/certs:ro
+    networks:
+      - mqtt_clients
+    depends_on:
+      - broker
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  sensor_02:
+    build:
+      context: ./sensor
+    container_name: agriculture-sensor-02
+    group_add:
+      - "10001"
+    restart: unless-stopped
+    environment:
+      SENSOR_ID: sensor_02
+      BROKER_HOST: broker
+      BROKER_PORT: "8883"
+      INTERVAL: "10"
+    volumes:
+      - ./sensor/runtime/certs:/app/certs:ro
+    networks:
+      - mqtt_clients
+    depends_on:
+      - broker
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  supervisor:
+    build:
+      context: ./supervisor
+    container_name: agriculture-supervisor
+    group_add:
+      - "10002"
+    restart: unless-stopped
+    environment:
+      BROKER_HOST: broker
+      BROKER_PORT: "8883"
+    volumes:
+      - ./supervisor/runtime/certs:/app/certs:ro
+    networks:
+      - mqtt_backend
+    depends_on:
+      - broker
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  mqtt_clients:
+    driver: bridge
+  mqtt_backend:
+    driver: bridge
+    internal: true
