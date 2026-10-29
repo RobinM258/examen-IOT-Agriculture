@@ -30,7 +30,7 @@ services:
       BROKER_PORT: "8883"
       INTERVAL: "10"
     volumes:
-      - ./sensor/runtime/certs:/app/certs:ro
+      - ./sensor/runtime/certs/sensor_01:/app/certs:ro
     networks:
       - mqtt_clients
     depends_on:
@@ -54,7 +54,7 @@ services:
       BROKER_PORT: "8883"
       INTERVAL: "10"
     volumes:
-      - ./sensor/runtime/certs:/app/certs:ro
+      - ./sensor/runtime/certs/sensor_02:/app/certs:ro
     networks:
       - mqtt_clients
     depends_on:
