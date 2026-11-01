@@ -1,6 +1,8 @@
 import json
 import os
 import ssl
+import threading
+import time
 
 import paho.mqtt.client as mqtt
 
@@ -12,8 +14,12 @@ CA_CERT = os.path.join(CERT_DIR, "ca.crt")
 CLIENT_CERT = os.path.join(CERT_DIR, "supervisor.crt")
 CLIENT_KEY = os.path.join(CERT_DIR, "supervisor.key")
 
-# Liste d'autorisation indépendante des données reçues.
 AUTHORIZED_SENSORS = {"sensor_01", "sensor_02"}
+
+
+SILENCE_TIMEOUT = float(os.getenv("SILENCE_TIMEOUT", "35"))
+last_seen = {s: time.time() for s in AUTHORIZED_SENSORS}
+panne_signalee = set()
 
 
 def on_connect(client, userdata, flags, reason_code, properties):
@@ -55,6 +61,11 @@ def on_message(client, userdata, message):
         )
         return
 
+    last_seen[sensor_from_topic] = time.time()
+    if sensor_from_topic in panne_signalee:
+        panne_signalee.discard(sensor_from_topic)
+        print(f"[RETOUR] {sensor_from_topic} communique de nouveau", flush=True)
+
     print(f"[MESURE] {message.topic} : {data}", flush=True)
 
     if sensor_from_topic == "sensor_01":
@@ -75,6 +86,15 @@ def on_message(client, userdata, message):
                 flush=True,
             )
 
+def watchdog():
+    while True:
+        time.sleep(5)
+        now = time.time()
+        for sensor in AUTHORIZED_SENSORS:
+            silence = now - last_seen[sensor]
+            if silence > SILENCE_TIMEOUT and sensor not in panne_signalee:
+                panne_signalee.add(sensor)
+                print(f"[PANNE] {sensor} muet depuis {int(silence)} s", flush=True)
 
 def main():
     client = mqtt.Client(
@@ -94,6 +114,7 @@ def main():
     client.tls_insecure_set(False)
 
     client.connect(BROKER_HOST, BROKER_PORT, keepalive=60)
+    threading.Thread(target=watchdog, daemon=True).start()
     client.loop_forever()
 
 

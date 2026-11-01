@@ -75,6 +75,7 @@ services:
     environment:
       BROKER_HOST: broker
       BROKER_PORT: "8883"
+      SILENCE_TIMEOUT: "35" 
     volumes:
       - ./supervisor/runtime/certs:/app/certs:ro
     networks:

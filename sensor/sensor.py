@@ -1,6 +1,7 @@
 import json
 import os
 import ssl
+import random
 import time
 
 import paho.mqtt.client as mqtt
@@ -48,9 +49,9 @@ def main():
         while True:
             # Valeurs simulées pour démontrer les alertes.
             if SENSOR_ID == "sensor_01":
-                measurement = {"humidite_sol": 22}
+                 measurement = {"humidite_sol": round(random.uniform(18, 45), 1)}
             else:
-                measurement = {"temperature": 37}
+                 measurement = {"temperature": round(random.uniform(15, 38), 1)}
 
             payload = {
                 "capteur": SENSOR_ID,
