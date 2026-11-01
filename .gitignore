@@ -31,3 +31,8 @@ supervisor/runtime/certs/
 
 # Fichiers privés générés localement
 certs/
+pki/
+*.key
+*.csr
+*.srl
+*/runtime/certs/
