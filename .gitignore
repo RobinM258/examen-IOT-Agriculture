@@ -36,3 +36,8 @@ pki/
 *.csr
 *.srl
 */runtime/certs/
+pki/
+*.key
+*.csr
+*.srl
+*/runtime/certs/
